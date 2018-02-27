@@ -179,7 +179,7 @@ static void hook_code64(uc_engine *uc, uint64_t address, uint32_t size, void *us
         if (count > 0) {
             printf("\t0x%lx:\t%s\t\t%s\n",
                 insn[0].address, insn[0].mnemonic, insn[0].op_str);
-            #if 1
+            #if 0
                 uint64_t rax, rsi, rsp;
                 uint32_t dword_ptr_ref = 0;
                 uc_reg_read(uc, UC_X86_REG_RAX, &rax);
@@ -329,7 +329,6 @@ uint64_t push_argv(uc_engine *uc, uint8_t* orig_buf, uint64_t len) {
     memcpy(buf, orig_buf, len);
     for (int offset = (len / sizeof(uint64_t)) * sizeof(uint64_t); offset >= 0; offset -= sizeof(uint64_t)) {
         uint64_t *data = (uint64_t *) (&(buf[offset]));
-        printf("%lx\n", *data);
         push_stack(uc, *data);
     }
     int64_t rsp;
@@ -380,14 +379,20 @@ int main(int argc, char* argv[])
     // prepare stack
     uint64_t rsp = 0x800000;
     uc_reg_write(uc, UC_X86_REG_RSP, &rsp);
-    uint64_t emu_argc = 2;
+    uint64_t emu_argc = argc - 1; // remove argv[0] (./loader)
     std::vector<uint64_t> argv_ptr;
+    printf("=== [prepare stack] ===\n");
     printf("emu_argc = %d\n",  emu_argc);
     // -- argv[1]
-    argv_ptr.push_back(push_argv(uc, (uint8_t *) argv[2], strlen(argv[2])));
+    if (argc >= 3)
+        argv_ptr.push_back(push_argv(uc, (uint8_t *) argv[2], strlen(argv[2])));
     // -- argv[0]
-    argv_ptr.push_back(push_argv(uc, (uint8_t *) argv[1], strlen(argv[1])));
+    if (argc >= 2)
+        argv_ptr.push_back(push_argv(uc, (uint8_t *) argv[1], strlen(argv[1])));
     // -- address of argvs
+    if (emu_argc == 1) {
+        push_stack(uc, 0);
+    }
     for (int i = 0; i < emu_argc; i++) {
         push_stack(uc, argv_ptr[i]);
     }

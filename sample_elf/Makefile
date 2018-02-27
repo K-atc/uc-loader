@@ -14,4 +14,9 @@ sample_elf: $(BIN) $(ASM)
 	$(CXX) $(CXXOPT) -o $@ $^
 
 $(ASM): $(BIN)
-	objdump -Mintel -d $^ > $@
+
+%.elf.s: %.elf
+	objdump -Mintel -d $< > $@
+
+hello.s: hello
+	objdump -Mintel -d $< > $@
