@@ -1,4 +1,6 @@
 loader
+sample_elf/hello
+sample_elf/correct-argv1.elf
 **/*.elf
 **/*.bin
 **/*.[os]
