@@ -1,0 +1,8 @@
+loader
+**/*.elf
+**/*.bin
+**/*.[os]
+
+.vscode/
+**/peda-session*
+**/.[0-9]+
